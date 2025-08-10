@@ -32,6 +32,10 @@ Every time you work on this project:
 - git clone https://github.com/<your-org>/<repo-name>.git
 - cd <repo-name>
 
+###  Clone the Repository (First Time Only)
+
+- run npm install
+
 ### 2️⃣ Pull the Latest Code Before You Start
 
 - git checkout main
