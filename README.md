@@ -37,7 +37,7 @@ Every time you work on this project:
 - git checkout main
 - git pull origin main
 
-##  Run this after cloning (Each Time)
+#####  Run this after cloning (Each Time)
 - npm install
 
 ### 3️⃣ Create and Switch to Your Personal Branch
