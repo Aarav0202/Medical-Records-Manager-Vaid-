@@ -1,7 +1,7 @@
 "use client"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useScrollTop } from '@/hooks/use-scroll-top'
 // import Logo from "./Images/Logo";
 import Link from "next/link"
@@ -11,12 +11,29 @@ import { Spinner } from "@/components/ui/spinner"
 import { AuthDialog } from "./AuthDialog"
 import { LoginForm } from "./LoginForm"
 import { RegisterForm } from "./RegisterForm"
+import { toast } from "sonner"
+import { usePathname, useRouter } from "next/navigation";
+
 
 const Navbar = () => {
   
+  const router = useRouter();
+  const pathname= usePathname();
+  const [isLoggedIn, setisLoggedIn] = useState(false);
+  
+  useEffect(() => {
+  const checkAuth = async () => {
+    const res = await fetch("http://localhost:8080/api/auth/checkToken", {
+      credentials: "include",
+    });
+    setisLoggedIn(res.ok);
+  };
+  checkAuth();
+}, [pathname]);
+
 // Submit handling for Register
   const handleRegisterSubmit = async (data:any) => {
-    console.log("Register form data:", data); 
+    
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
   method: "POST",
@@ -27,21 +44,56 @@ const Navbar = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Registration failed: ${errorData.message}`);
+        toast.error(`Registration failed: ${errorData.message}`);
         return;
       }
 
-      alert("Registration successful!");
+      toast.success("Registration successful!");
     } catch (error) {
-      alert("An error occurred during registration.");
+      toast.error("An error occurred during registration.");
     }
   };
 
-  const handleLoginSubmit = async (data: any) => {
-    // call your login API here
-    console.log("Login data:", data);
-  };
+  // Submit handling for Login
+const handleLoginSubmit = async (data: any) => {
+  try {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", 
+      body: JSON.stringify(data),
+    });
 
+    const result = await response.json();
+
+    if (!response.ok) {
+      toast.error(`Login failed: ${result.message}`);
+      return;
+    }
+
+    toast.success("Login successful!");
+    setisLoggedIn(true);
+    setTimeout(() => {
+      router.push("/home")
+    }, (1200));
+  } catch (error) {
+    toast.error(`Login error:", ${error}`);
+    toast.error("An error occurred during login.");
+  }
+};
+
+// Submit handling for LogOut
+const handleLogout=async ()=>{
+  await fetch("http://localhost:8080/api/auth/logout",{
+    method:"POST",
+    credentials:"include",
+  })
+  setisLoggedIn(false);
+  setTimeout(() => {
+    router.push("/")
+  }, 1000);
+  toast.success("Logged out successfully")
+}
 
 
     const scrolled= useScrollTop();
@@ -64,6 +116,10 @@ const Navbar = () => {
 
         {/* <Button > */}
         {/* <Button variant="ghost" size="sm">Log in</Button> */}
+        {isLoggedIn ? (
+          <Button onClick={handleLogout}>Logout</Button>
+        ):(
+        
         <AuthDialog
         buttonLabel="Log in"
         dialogTitle="Log in"
@@ -71,6 +127,7 @@ const Navbar = () => {
         FormComponent={LoginForm}
         onSubmit={handleLoginSubmit}
       />
+      )}
 
         {/* </Button> */}
 

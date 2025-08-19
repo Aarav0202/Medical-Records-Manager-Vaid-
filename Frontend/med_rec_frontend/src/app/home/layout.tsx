@@ -1,4 +1,3 @@
-import Navbar from "./_components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 const MarketingLayout =({
     children
@@ -9,7 +8,6 @@ const MarketingLayout =({
     return(
         // <div className="h-full dark:bg-[#1F1F1F]">
         <div className="dark:bg-[#1F1F1F]">
-            <Navbar/>
             <main className="h-full pt-40">
                 {children}
                 <Toaster position="top-center" duration={2000}  />
