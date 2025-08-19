@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user'); 
-
+const jwt=require('jsonwebtoken')
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
@@ -35,5 +35,58 @@ router.post('/register', async (req, res) => {
   }
 });
 
+
+// Login Route API
+router.post("/login" , async (req, res)=>{
+  try{
+    const{email , password}= req.body ;
+    if(!email || !password){
+      return res.status(400).json({message:"Email and password are required"});
+    }
+    const user= await User.findOne({email});
+    if(!user){
+      return res.status(400).json({message:"Invalid email or password"});
+    }
+    const foundUser= await bcrypt.compare(password , user.password);
+    if(!foundUser){
+      return res.status(400).json({message:"Invalid email or password"});
+    }
+    const token = jwt.sign({
+      id:user._id , email:user.email,
+    }, process.env.JWT_SECRET);
+
+    res.cookie('token', token,{
+      httpOnly:true, 
+      secure:process.env.NODE_ENV === 'production',
+      sameSite:'strict',
+    });
+
+    res.status(200).json({message:"Login Successful"});
+
+  }catch(error){
+    res.status(500).json({message:"Server error"});
+  }
+});
+
+
+//Logout Route API
+router.post("/logout" , (req , res)=>{
+  res.clearCookie('token',{
+    httpOnly:true,
+    secure:process.env.NODE_ENV==='production',
+    sameSite:'strict'
+  });
+  res.status(200).json({message:"Logged out successfully"})
+})
+
+// Check weather token present or not 
+router.get("/checkToken", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ loggedIn: false });
+  }
+  // Optionally verify token here
+  res.json({ loggedIn: true });
+});
 
 module.exports= router;

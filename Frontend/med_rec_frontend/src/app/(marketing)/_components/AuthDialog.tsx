@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 
 interface AuthDialogProps {
-  buttonLabel: string;
+  buttonLabel: React.ReactNode;
   dialogTitle: string;
   dialogDescription: string;
   FormComponent: React.FC;
@@ -50,7 +50,7 @@ export function AuthDialog({
           <DialogTitle className="text-3xl">{dialogTitle}</DialogTitle>
           <DialogDescription>{dialogDescription}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <FormComponent />
           <DialogFooter className="mt-2">
             <DialogClose asChild>
